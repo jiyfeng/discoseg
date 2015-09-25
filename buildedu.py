@@ -1,7 +1,7 @@
 ## buildedu.py
 ## Author: Yangfeng Ji
 ## Date: 05-03-2015
-## Time-stamp: <yangfeng 05/03/2015 09:54:51>
+## Time-stamp: <yangfeng 09/25/2015 15:35:08>
 
 from os import listdir
 from os.path import join, basename
@@ -19,14 +19,12 @@ def main(fmodel, fvocab, rpath, wpath):
     flist = [join(rpath,fname) for fname in listdir(rpath) if fname.endswith('conll')]
     vocab = load(gzip.open(fvocab))
     for (fidx, fname) in enumerate(flist):
-        if (fidx+1) % 100 == 0:
-            print "Processing {} files".format(fidx+1)
+        print "Processing file: {}".format(fname)
         doc = dr.read(fname, withboundary=False)
         sg = SampleGenerator(vocab)
         sg.build(doc)
         M, _ = sg.getmat()
         predlabels = clf.predict(M)
-        # print predlabels
         doc = postprocess(doc, predlabels)
         writedoc(doc, fname, wpath)
 
@@ -45,19 +43,43 @@ def postprocess(doc, predlabels):
     return doc
 
 
+# def writedoc(doc, fname, wpath):
+#     """ Write doc into a file with the CoNLL-like format
+#     """
+#     tokendict = doc.tokendict
+#     N = len(tokendict)
+#     fname = basename(fname) + '.edu'
+#     fname = join(wpath, fname)
+#     eduidx = 0
+#     with open(fname, 'w') as fout:
+#         for gidx in range(N):
+#             fout.write(str(eduidx) + '\n')
+#             if tokendict[gidx].boundary:
+#                 eduidx += 1
+#             if tokendict[gidx].send:
+#                 fout.write('\n')
+#     print 'Write segmentation: {}'.format(fname)
+
+
 def writedoc(doc, fname, wpath):
-    """ Write doc into a file with the CoNLL-like format
+    """ Write file
     """
     tokendict = doc.tokendict
     N = len(tokendict)
-    fname = basename(fname) + '.edu'
+    fname = basename(fname).replace(".conll", ".merge")
     fname = join(wpath, fname)
-    eduidx = 0
+    eduidx = 1
     with open(fname, 'w') as fout:
         for gidx in range(N):
-            fout.write(str(eduidx) + '\n')
-            if tokendict[gidx].boundary:
+            tok = tokendict[gidx]
+            line = str(tok.sidx) + "\t" + str(tok.tidx) + "\t"
+            line += tok.word + "\t" + tok.lemma + "\t" 
+            line += tok.pos + "\t" + tok.deplabel + "\t" 
+            line += str(tok.hidx) + "\t" + tok.ner + "\t"
+            line += tok.partialparse + "\t" + str(eduidx) + "\n"
+            fout.write(line)
+            # Boundary
+            if tok.boundary:
                 eduidx += 1
-            if tokendict[gidx].send:
-                fout.write('\n')
-    # print 'Write segmentation: {}'.format(fname)
+            if tok.send:
+                fout.write("\n")

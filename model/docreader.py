@@ -1,7 +1,7 @@
 ## readdoc.py
 ## Author: Yangfeng Ji
 ## Date: 05-02-2015
-## Time-stamp: <yangfeng 05/03/2015 17:52:37>
+## Time-stamp: <yangfeng 09/25/2015 15:18:23>
 
 from datastruct import *
 from util import isnumber
@@ -58,6 +58,8 @@ class DocReader(object):
                 tokendict[n].boundary = True
             elif (tokendict[n].eduidx < tokendict[n+1].eduidx):
                 tokendict[n].boundary = True
+            else:
+                tokendict[n].boundary = False
         return tokendict
             
         

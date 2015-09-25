@@ -1,7 +1,7 @@
 ## buildsample.py
 ## Author: Yangfeng Ji
 ## Date: 05-03-2015
-## Time-stamp: <yangfeng 05/03/2015 05:39:17>
+## Time-stamp: <yangfeng 09/25/2015 15:13:36>
 
 from model.docreader import DocReader
 from model.sample import SampleGenerator
@@ -19,11 +19,11 @@ def main(rpath, fdata, fvocab):
     sg = SampleGenerator(vocab)
     flist = [join(rpath,fname) for fname in listdir(rpath) if fname.endswith('merge')]
     for fname in flist:
-        print "Reading file: {}".format(fname)
+        # print "Reading file: {}".format(fname)
         doc = dr.read(fname)
         sg.build(doc)
     M, labels = sg.getmat()
-    # M, labels = None, None
+    print 'M.shape = {}, len(labels) = {}'.format(M.shape, len(labels))
     data = {'data':M, 'labels':labels}
     if not fdata.endswith('.pickle.gz'):
         fdata += '.pickle.gz'
